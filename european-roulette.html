@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>European Roulette</title>
+    <style>
+        :root {
+            --roulette-size: 600px;
+            --primary: #1B4332;
+            --accent: #D00000;
+            --gold: #FFD700;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #0B2545;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .roulette-container {
+            display: grid;
+            grid-template-columns: var(--roulette-size) 300px;
+            gap: 20px;
+            background: var(--primary);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .wheel-container {
+            position: relative;
+            width: var(--roulette-size);
+            height: var(--roulette-size);
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #2D6A4F;
+            position: relative;
+            transform-origin: center;
+            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .wheel-number {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            transform-origin: center;
+        }
+
+        .ball {
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+        }
+
+        .betting-grid {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            gap: 2px;
+            margin-top: 20px;
+        }
+
+        .bet-cell {
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #40916C;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .bet-cell:hover {
+            background: #52B788;
+            transform: scale(1.1);
+        }
+
+        .bet-cell.red { background: var(--accent); }
+        .bet-cell.black { background: #1B1B1B; }
+
+        .controls {
+            background: #1B4332;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .bet-amount {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .chip {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .chip:hover {
+            transform: scale(1.1);
+        }
+
+        .spin-btn, .reset-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--gold);
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .spin-btn:hover, .reset-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+
+        .stats {
+            color: white;
+            margin-top: 20px;
+        }
+
+        @keyframes ballSpin {
+            0% { transform: rotate(0deg) translateX(250px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(250px) rotate(-360deg); }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --roulette-size: 300px;
+            }
+
+            .roulette-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto;
+            }
+
+            .wheel-container {
+                width: var(--roulette-size);
+                height: var(--roulette-size);
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="roulette-container">
+        <div class="wheel-container">
+            <div class="wheel" id="wheel">
+                <div class="ball" id="ball"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="bet-amount">
+                <div class="chip" style="background: #FF4136" data-value="10">10</div>
+                <div class="chip" style="background: #2ECC40" data-value="50">50</div>
+                <div class="chip" style="background: #0074D9" data-value="100">100</div>
+                <div class="chip" style="background: #B10DC9" data-value="500">500</div>
+            </div>
+            
+            <div class="betting-grid" id="bettingGrid"></div>
+            
+            <button class="spin-btn" id="spinBtn">SPIN</button>
+            <button class="reset-btn" id="resetBtn">RESET</button>
+            
+            <div class="stats">
+                <div>Balance: <span id="balance">10000</span>₽</div>
+                <div>Current Bet: <span id="currentBet">0</span>₽</div>
+                <div>Last Win: <span id="lastWin">0</span>₽</div>
+                <div>History: <span id="history"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class RouletteGame {
+            constructor() {
+                this.numbers = [
+                    0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36,
+                    11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9,
+                    22, 18, 29, 7, 28, 12, 35, 3, 26
+                ];
+                this.currentBet = 0;
+                this.selectedChipValue = 10;
+                this.balance = 10000;
+                this.bets = new Map();
+                this.isSpinning = false;
+                this.history = [];
+
+                this.initializeWheel();
+                this.initializeBettingGrid();
+                this.initializeControls();
+                this.updateStats();
+            }
+
+            initializeWheel() {
+                const wheel = document.getElementById('wheel');
+                const radius = 280; // Радиус для размещения чисел
+                this.numbers.forEach((number, index) => {
+                    const angle = (index * 360 / 37) - 90; // Угол для размещения чисел
+                    const numberEl = document.createElement('div');
+                    numberEl.className = 'wheel-number';
+                    numberEl.textContent = number;
+                    numberEl.style.transform = `rotate(${angle}deg) translate(${radius}px) rotate(${angle}deg)`;
+                    wheel.appendChild(numberEl);
+                });
+            }
+
+            initializeBettingGrid() {
+                const grid = document.getElementById('bettingGrid');
+                for(let i = 0; i < 37; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'bet-cell';
+                    cell.textContent = i;
+                    if(i === 0) {
+                        cell.style.gridColumn = '1 / span 3';
+                        cell.style.background = '#40916C';
+                    } else {
+                        const isRed = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(i);
+                        cell.classList.add(isRed ? 'red' : 'black');
+                    }
+                    cell.addEventListener('click', () => this.placeBet(i));
+                    grid.appendChild(cell);
+                }
+            }
+
+            initializeControls() {
+                document.querySelectorAll('.chip').forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        this.selectedChipValue = parseInt(chip.dataset.value);
+                        document.querySelectorAll('.chip').forEach(c => c.style.transform = 'scale(1)');
+                        chip.style.transform = 'scale(1.2)';
+                    });
+                });
+
+                document.getElementById('spinBtn').addEventListener('click', () => this.spin());
+                document.getElementById('resetBtn').addEventListener('click', () => this.resetGame());
+            }
+
+            placeBet(number) {
+                if(this.isSpinning || this.balance < this.selectedChipValue) return;
+
+                const currentBetOnNumber = this.bets.get(number) || 0;
+                this.bets.set(number, currentBetOnNumber + this.selectedChipValue);
+                this.currentBet += this.selectedChipValue;
+                this.balance -= this.selectedChipValue;
+                this.updateStats();
+            }
+
+            spin() {
+                if(this.isSpinning || this.currentBet === 0) return;
+
+                this.isSpinning = true;
+                const wheel = document.getElementById('wheel');
+                const ball = document.getElementById('ball');
+                
+                const randomNumber = this.numbers[Math.floor(Math.random() * this.numbers.length)];
+                const rotations = 8;
+                const anglePerNumber = 360 / 37;
+                const targetAngle = -(rotations * 360 + (this.numbers.indexOf(randomNumber) * anglePerNumber));
+
+                wheel.style.transform = `rotate(${targetAngle}deg)`;
+                ball.style.animation = 'ballSpin 5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards';
+
+                setTimeout(() => {
+                    this.checkWin(randomNumber);
+                    this.isSpinning = false;
+                    ball.style.animation = 'none';
+                    this.bets.clear();
+                    this.currentBet = 0;
+                    this.updateStats();
+                }, 5000);
+            }
+
+            checkWin(number) {
+                let winAmount = 0;
+                if(this.bets.has(number)) {
+                    winAmount = this.bets.get(number) * 35;
+                }
+                
+                if(winAmount > 0) {
+                    this.balance += winAmount;
+                    document.getElementById('lastWin').textContent = winAmount;
+                } else {
+                    document.getElementById('lastWin').textContent = 0;
+                }
+
+                this.history.push(number);
+                document.getElementById('history').textContent = this.history.join(', ');
+            }
+
+            updateStats() {
+                document.getElementById('balance').textContent = this.balance;
+                document.getElementById('currentBet').textContent = this.currentBet;
+            }
+
+            resetGame() {
+                this.balance = 10000;
+                this.currentBet = 0;
+                this.bets.clear();
+                this.history = [];
+                this.updateStats();
+                document.getElementById('history').textContent = '';
+                document.getElementById('lastWin').textContent = 0;
+            }
+        }
+
+        // Initialize game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new RouletteGame();
+        });
+    </script>
+</body>
+</html>

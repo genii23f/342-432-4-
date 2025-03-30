@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Casino - VIP Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/game.css">
+</head>
+<body>
+    <div class="game-container">
+        <aside class="sidebar">
+            <div class="user-profile">
+                <img src="https://i.pravatar.cc/150" alt="Avatar" class="avatar" title="Нажмите для изменения аватара">
+                <h3 title="Нажмите для изменения имени">VIP Player</h3>
+                <span class="edit-icon" title="Изменить имя">✏️</span>
+                <div class="balance" id="balance">0 ₽</div>
+                <button class="recharge-btn" id="recharge-btn">Пополнить</button>
+            </div>
+            
+            <nav class="game-menu">
+                <div class="menu-item active">
+                    <span>🎲 Все игры</span>
+                </div>
+                <div class="menu-item">
+                    <span>♠️ Покер</span>
+                </div>
+                <div class="menu-item">
+                    <span>🎰 Слоты</span>
+                </div>
+                <div class="menu-item">
+                    <span>🎯 Рулетка</span>
+                </div>
+                <div class="menu-item">
+                    <span>♣️ Блэкджек</span>
+                </div>
+                <div class="menu-item">
+                    <span>🏆 Турниры</span>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="live-games">🔴 Онлайн: 1,337</div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value">1.5M</div>
+                    <div class="stat-label">Джекпот</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">Турниры</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">98%</div>
+                    <div class="stat-label">Выплаты</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5,000+</div>
+                    <div class="stat-label">Игр</div>
+                </div>
+            </div>
+
+            <div class="game-grid">
+                <!-- Все игры -->
+                <div class="game-card" data-category="poker">
+                    <div class="game-icon">♠️</div>
+                    <h3>Texas Hold'em</h3>
+                    <p>Мин. ставка: 1,000 ₽</p>
+                </div>
+                <div class="game-card" data-category="slots" onclick="location.href='book-of-ra.html'">
+                    <div class="game-icon">🎰</div>
+                    <h3>Book of Ra</h3>
+                    <p>Мин. ставка: 100 ₽</p>
+                </div>
+                <div class="game-card" data-category="roulette" onclick="location.href='european-roulette.html'">
+                    <div class="game-icon">🎯</div>
+                    <h3>European Roulette</h3>
+                    <p>Мин. ставка: 500 ₽</p>
+                </div>
+                <div class="game-card" data-category="blackjack">
+                    <div class="game-icon">♣️</div>
+                    <h3>VIP Blackjack</h3>
+                    <p>Мин. ставка: 2,000 ₽</p>
+                </div>
+                <div class="game-card" data-category="tournament">
+                    <div class="game-icon">🏆</div>
+                    <h3>Poker Tournament</h3>
+                    <p>Призовой фонд: 1M ₽</p>
+                </div>
+
+                <!-- Покер -->
+                <div class="game-card" data-category="poker">
+                    <div class="game-icon">♠️</div>
+                    <h3>Omaha</h3>
+                    <p>Мин. ставка: 2,000 ₽</p>
+                </div>
+
+                <!-- Слоты -->
+                <div class="game-card" data-category="slots">
+                    <div class="game-icon">🎰</div>
+                    <h3>Starburst</h3>
+                    <p>Мин. ставка: 50 ₽</p>
+                </div>
+
+                <!-- Рулетка -->
+                <div class="game-card" data-category="roulette">
+                    <div class="game-icon">🎯</div>
+                    <h3>American Roulette</h3>
+                    <p>Мин. ставка: 500 ₽</p>
+                </div>
+
+                <!-- Блэкджек -->
+                <div class="game-card" data-category="blackjack">
+                    <div class="game-icon">♣️</div>
+                    <h3>Classic Blackjack</h3>
+                    <p>Мин. ставка: 1,000 ₽</p>
+                </div>
+
+                <!-- Турниры -->
+                <div class="game-card" data-category="tournament">
+                    <div class="game-icon">🏆</div>
+                    <h3>Slots Tournament</h3>
+                    <p>Призовой фонд: 500K ₽</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="scripts/game.js"></script>
+</body>
+</html>
+
